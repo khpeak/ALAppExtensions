@@ -127,18 +127,20 @@ codeunit 30184 "Shpfy Sync Product Image"
     /// <param name="Item">Parameter of type Record Item.</param>
     /// <param name="ImageUrl">Parameter of type Text.</param>
     /// <returns>Return value of type Boolean.</returns>
-    local procedure UpdateItemImage(Item: Record Item; ImageUrl: Text): Boolean
+    local procedure UpdateItemImage(Item: Record Item; ImageUrl: Text) Success: Boolean
     var
         HttpClient: HttpClient;
         HttpResponseMessage: HttpResponseMessage;
         InStream: InStream;
     begin
+        Success := false;
         if HttpClient.Get(ImageUrl, HttpResponseMessage) then begin
             HttpResponseMessage.Content.ReadAs(InStream);
             Clear(Item.Picture);
             Item.Picture.ImportStream(InStream, Item.Description);
             Item.Modify(true);
             ProductEvents.OnAfterUpdateItemPicture(Item, ImageUrl, InStream);
+            Success := true;
         end;
     end;
 
